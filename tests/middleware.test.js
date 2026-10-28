@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { onProvider } from "../request-injector.middleware.mjs";
+import { onProvider } from "../request-patcher.middleware.mjs";
 
 test("Disabled or malformed settings cannot modify a request", () => {
   const body = Object.freeze({ model: "gpt-5-codex", input: "hello" });
@@ -22,7 +22,7 @@ test("Existing client tiers are preserved regardless of the configured tier", ()
   }
 });
 
-test("Injection fills a missing tier without changing prompt or generation settings", () => {
+test("Patching fills a missing tier without changing prompt or generation settings", () => {
   for (const tier of ["priority", "ultrafast"]) {
     const body = {};
     for (const [key, value] of Object.entries({

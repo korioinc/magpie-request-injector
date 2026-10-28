@@ -1,19 +1,19 @@
 {
-  "name": "magpie-request-injector",
+  "name": "magpie-request-patcher",
   "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "description": "Customize outgoing request payloads in Magpie from a single settings page.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/korioinc/magpie-request-injector.git"
+    "url": "https://github.com/korioinc/magpie-request-patcher.git"
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check request-injector.middleware.mjs && node --check page/app.js"
+    "check": "node --check request-patcher.middleware.mjs && node --check page/app.js"
   },
   "files": [
-    "request-injector.middleware.mjs",
+    "request-patcher.middleware.mjs",
     "page/",
     "README.md",
     "LICENSE"
@@ -21,15 +21,15 @@
   "keywords": [
     "magpie",
     "magpie-plugin",
-    "request-injection",
+    "request-patching",
     "request-payload",
     "codex",
     "middleware"
   ],
   "magpie": {
-    "middleware": "./request-injector.middleware.mjs",
+    "middleware": "./request-patcher.middleware.mjs",
     "page": {
-      "title": "Request Injector",
+      "title": "Request Patcher",
       "file": "page/index.html",
       "icon": "page/icon.webp"
     },

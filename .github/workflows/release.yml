@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Validate release version
+        run: |
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { readFileSync } from "node:fs";
+          const tag = process.env.GITHUB_REF_NAME;
+          assert.match(tag, /^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/, "Use a stable version tag such as v0.1.0.");
+          const pkg = JSON.parse(readFileSync("package.json", "utf8"));
+          assert.equal(tag, `v${pkg.version}`, "Tag must match package.json version.");
+          NODE
+
+      - run: npm test
+      - run: npm run check
+
+      - name: Package release
+        run: |
+          mkdir dist
+          npm pack --ignore-scripts --pack-destination dist
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-package
+          path: dist/*.tgz
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+  release:
+    needs: package
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: release-package
+          path: dist
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          assets=(dist/*.tgz)
+          if [ "${#assets[@]}" -ne 1 ]; then
+            echo "Expected exactly one release package." >&2
+            exit 1
+          fi
+          asset_name=$(basename "${assets[0]}")
+
+          if draft=$(gh release view "$TAG" --json isDraft --jq .isDraft); then
+            if [ "$draft" = "false" ]; then
+              published_assets=$(gh release view "$TAG" --json assets --jq '.assets[].name')
+              if ! grep -Fqx -- "$asset_name" <<< "$published_assets"; then
+                echo "Published release $TAG is missing $asset_name; refusing to modify it." >&2
+                exit 1
+              fi
+              echo "Release $TAG is already published; nothing to do."
+              exit 0
+            fi
+          else
+            gh release create "$TAG" \
+              --verify-tag --draft --title "$TAG" --generate-notes
+          fi
+          gh release upload "$TAG" "${assets[0]}" --clobber
+          gh release edit "$TAG" --draft=false
