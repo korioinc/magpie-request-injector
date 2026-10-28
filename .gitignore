@@ -1,0 +1,13 @@
+# Dependencies and generated output
+node_modules/
+*.tgz
+coverage/
+*.log
+.tmp/
+
+# Editor and assistant workspace files
+.docs.internal/
+.idea/
+.vscode/
+.pi/
+.DS_Store

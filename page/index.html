@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Request Injector</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="_magpie/bridge.js"></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main class="page" lang="en">
+    <header class="page-header">
+      <h1>Request Injector</h1>
+    </header>
+
+    <section class="confirmed" aria-labelledby="confirmed-title">
+      <h2 id="confirmed-title">Saved setting</h2>
+      <div class="confirmed-summary">
+        <p class="confirmed-value" id="confirmed-value">Checking…</p>
+        <code class="confirmed-detail" id="confirmed-detail">—</code>
+      </div>
+    </section>
+
+    <section class="settings-section" aria-labelledby="codex-service-tier-title">
+      <fieldset class="controls" id="controls" disabled>
+        <legend class="visually-hidden">Codex Service Tier settings</legend>
+        <div class="section-heading">
+          <h2 id="codex-service-tier-title">Codex Service Tier</h2>
+          <label class="toggle-control" for="enabled">
+            <span id="toggle-label" aria-hidden="true">OFF</span>
+            <input type="checkbox" role="switch" id="enabled" aria-label="Enable Codex Service Tier">
+          </label>
+        </div>
+
+        <fieldset class="tier-group">
+          <legend class="visually-hidden">Service tier</legend>
+          <div class="tier-options">
+            <label class="tier-option">
+              <input class="visually-hidden" type="radio" name="tier" value="priority" checked>
+              <span>Fast</span>
+            </label>
+            <label class="tier-option">
+              <input class="visually-hidden" type="radio" name="tier" value="ultrafast">
+              <span>Ultrafast</span>
+            </label>
+          </div>
+        </fieldset>
+      </fieldset>
+
+      <div class="save-feedback">
+        <p class="save-status" id="save-status" role="status" aria-live="polite" aria-atomic="true">Loading…</p>
+        <div class="error-message" id="error-message" role="alert" hidden>
+          <p id="error-text"></p>
+          <div class="recovery-actions">
+            <button type="button" id="retry-save" hidden>Retry</button>
+            <button type="button" id="retry-load" hidden>Load saved</button>
+            <button type="button" id="reload-page" hidden>Reload</button>
+          </div>
+          <p class="recovery-note" id="reload-note" hidden>Loading saved settings discards unsaved changes.</p>
+        </div>
+        <div class="pending-recovery" id="pending-recovery" role="status" hidden>
+          <p id="pending-text"></p>
+          <button type="button" id="reload-pending">Reload</button>
+          <p class="recovery-note">Reloading discards unsaved changes.</p>
+        </div>
+        <p class="invalid-notice" id="invalid-notice" hidden>Invalid settings. Injection is OFF. Change a setting to reset.</p>
+      </div>
+    </section>
+    <noscript><p class="noscript">JavaScript is required to change settings.</p></noscript>
+  </main>
+</body>
+</html>
